@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Chat</title>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <style>
+    * {
+        margin:0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font: 16px Arial;
+    }
+
+    form {
+        padding: 3px;
+        position: fixed;
+        bottom: 0;
+        width: 60%;
+        margin-left: 20%;
+        margin-right: 20%;
+        border: 0;
+    }
+
+    form input {
+        margin: 0 auto;
+        border: 0;
+        padding: 10px;
+    }
+
+    form button {
+        margin-top: 5px;
+        padding: 10px;
+        width: 100%;
+    }
+
+    #messages {
+        list-style-type: none;
+        width: 60%;
+        margin: 0 auto;
+        padding: 0;
+    }
+
+    #messages li {
+        padding: 5px 10px;
+    }
+
+    #messages li:nth-child(odd) {
+        background: #eee;
+    }
+
+    input[type=text] {
+        font-size: 18px;
+        height: 100px;
+        line-height:100px;
+        text-align: left;
+    }
+
+    </style>
+</head>
+
+<body>
+    <div id="chat">
+        <ul id="messages">
+            <li v-for="message in messages">{{message}}</li>
+        </ul>
+
+        <form v-on:submit="send">
+            <div class="form-group">
+            <input type="text" v-model="message" class="form-control" rows="10">
+            <button class="btn btn-primary">Send</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.2/socket.io.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.10/vue.js"></script>
+    <script>
+        var socket = io();
+
+        new Vue({
+            el: '#chat',
+
+            data: {
+                messages: [],
+                message: ''
+            },
+
+            mounted: function() {
+                socket.on('chat.message', function(message){
+                    this.messages.push(message);
+                }.bind(this));
+            },
+
+            methods: {
+                send: function(e) {
+                    socket.emit('chat.message', this.message);
+                    // this.messages.push(this.message);
+                    this.message = '';
+                    e.preventDefault();
+                }
+            }
+        })
+    </script>
+
+</body>
+</html>
